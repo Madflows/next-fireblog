@@ -6,9 +6,11 @@ import Metatags from '@components/Metatags';
 import { UserContext } from '@lib/context';
 import { firestore, getUserWithUsername, postToJSON } from '../../lib/firebase';
 
+
 import Link from 'next/link';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { useContext } from 'react';
+import { FaHeart } from 'react-icons/fa';
 
 export async function getStaticProps({ params }) {
   const { username, slug } = params;
@@ -69,7 +71,7 @@ export default function Post(props) {
 
       <aside className="card">
         <p>
-          <strong>{post.heartCount || 0} 🤍</strong>
+          <strong className='flex items-center justify-center gap-2'>{post.heartCount || 0} <FaHeart /></strong>
         </p>
 
         <AuthCheck

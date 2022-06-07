@@ -1,18 +1,20 @@
-import PostFeed from '@components/PostFeed';
-import Metatags from '@components/Metatags';
-import Loader from '@components/Loader';
-import { firestore, fromMillis, postToJSON } from '@lib/firebase';
+import PostFeed from "@components/PostFeed";
+import Metatags from "@components/Metatags";
+import Loader from "@components/Loader";
+import { firestore, fromMillis, postToJSON } from "@lib/firebase";
+import Script from "next/script";
 
-import { useState } from 'react';
+import { useState } from "react";
+import next from "next";
 
 // Max post to query per page
 const LIMIT = 10;
 
 export async function getServerSideProps(context) {
   const postsQuery = firestore
-    .collectionGroup('posts')
-    .where('published', '==', true)
-    .orderBy('createdAt', 'desc')
+    .collectionGroup("posts")
+    .where("published", "==", true)
+    .orderBy("createdAt", "desc")
     .limit(LIMIT);
 
   const posts = (await postsQuery.get()).docs.map(postToJSON);
@@ -33,12 +35,15 @@ export default function Home(props) {
     setLoading(true);
     const last = posts[posts.length - 1];
 
-    const cursor = typeof last.createdAt === 'number' ? fromMillis(last.createdAt) : last.createdAt;
+    const cursor =
+      typeof last.createdAt === "number"
+        ? fromMillis(last.createdAt)
+        : last.createdAt;
 
     const query = firestore
-      .collectionGroup('posts')
-      .where('published', '==', true)
-      .orderBy('createdAt', 'desc')
+      .collectionGroup("posts")
+      .where("published", "==", true)
+      .orderBy("createdAt", "desc")
       .startAfter(cursor)
       .limit(LIMIT);
 
@@ -53,22 +58,37 @@ export default function Home(props) {
   };
 
   return (
-    <main>
-      <Metatags title="Home Page" description="Get the latest posts on our site" />
+    <>
 
-      <div className="card card-info">
-        <h2>💡 Next.js + Firebase - The Full Course</h2>
-        <p>Welcome! This app is built with Next.js and Firebase and is loosely inspired by Dev.to.</p>
-        <p>Sign up for an 👨‍🎤 account, ✍️ write posts, then 💞 heart content created by other users. All public content is server-rendered and search-engine optimized.</p>
-      </div>
-     
-      <PostFeed posts={posts} />
+      <main>
+        <Metatags
+          title="Home Page"
+          description="Get the latest posts on our site"
+        />
 
-      {!loading && !postsEnd && <button onClick={getMorePosts}>Load more</button>}
+        <div className="card card-info bg-slate-900">
+          <h2>💡 Next.js + Firebase - The Full Course</h2>
+          <p>
+            Welcome! This app is built with Next.js and Firebase and is loosely
+            inspired by Dev.to.
+          </p>
+          <p>
+            Sign up for an 👨‍🎤 account, ✍️ write posts, then 💞 heart content
+            created by other users. All public content is server-rendered and
+            search-engine optimized.
+          </p>
+        </div>
 
-      <Loader show={loading} />
+        <PostFeed posts={posts} />
 
-      {postsEnd && 'You have reached the end!'}
-    </main>
+        {!loading && !postsEnd && (
+          <button onClick={getMorePosts}>Load more</button>
+        )}
+
+        <Loader show={loading} />
+
+        {postsEnd && "You have reached the end!"}
+      </main>
+    </>
   );
 }
